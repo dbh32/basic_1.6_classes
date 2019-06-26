@@ -1,5 +1,9 @@
-class Animal:
-    hunger_status = 'Нужно покормить!'
+from abc import ABC, abstractmethod
+
+
+class Animal(ABC):
+    hunger_status = 'хочет кушать'
+    collect_status = ''
     # или 'Сыт(а)', если уже кормили
     weight = 0
 
@@ -7,23 +11,32 @@ class Animal:
         self.name = name
         self.weight = float(weight)  # кг
 
+    @abstractmethod
     def feed(self):
-        self.hunger_status = 'Сыт(а)'
+        pass
+        # self.hunger_status = 'Сыт(а)'
+
+    @abstractmethod
+    def collect(self):
+        pass
 
 
 class Bird(Animal):
     __name = ''
-    eggs_status = 'Время собирать яйца!'
+    collect_status = 'пора собирать яйца!'
 
     # или 'Яиц нет :(', если яиц нет
 
-    def eggs_collect(self):
-        self.eggs_status = 'Яиц нет :('
+    def feed(self):
+        self.hunger_status = 'сыт(а)'
+
+    def collect(self):
+        self.collect_status = 'яиц нет'
 
 
 class Goose(Bird, Animal):
     __name = ''
-    __voice = 'Га-га-га!'
+    __voice = 'га-га-га!'
 
 
 class Chicken(Bird, Animal):
@@ -36,21 +49,27 @@ class Duck(Bird, Animal):
 
 
 class Milky(Animal):
-    milk_status = 'Пора доить!'
+    collect_status = 'пора доить!'
 
     # или 'Пока молока нет', если недавно доили
 
-    def milk_collect(self):
-        self.milk_status = 'Пока молока нет'
+    def feed(self):
+        self.hunger_status = 'сыт(а)'
+
+    def collect(self):
+        self.collect_status = 'молока нет'
 
 
 class Cow(Milky, Animal):
     __name = ''
-    __voice = 'Мууу'
+    __voice = 'мууу'
 
 
 class Bleat(Animal):
-    __voice = 'Бэээ...Мэээ'
+    __voice = 'бэээ...мэээ'
+
+    def feed(self):
+        self.hunger_status = 'сыт(а)'
 
 
 class Goat(Milky, Bleat, Animal):
@@ -59,8 +78,68 @@ class Goat(Milky, Bleat, Animal):
 
 class Sheep(Bleat, Animal):
     __name = ''
-    __wool_status = 'Пора стричь!'
+    collect_status = 'пора стричь!'
+
     # или 'Шерсть ещё не отросла', если острижена
+
+    def collect(self):
+        self.collect_status = 'шерсть ещё не отросла'
+
+
+def total_weight():
+    total_weight = sum(name_plus_weight.values())
+    print(f'Общий вес всех животных: {total_weight}')
+
+
+def max_weight():
+    max_value = max(name_plus_weight.values())
+    for heaviest_animal, heaviest_weight in name_plus_weight.items():
+        if heaviest_weight == max_value:
+            print(f'Самое тяжелое животное на ферме - '
+                  f'это {heaviest_animal} весом {heaviest_weight} кг!')
+
+
+def animal_status():
+    for animal in animals_list:
+        print('{} {} и {}...'
+              .format(animal.name,
+                      animal.hunger_status,
+                      animal.collect_status))
+
+
+def main():
+    print()
+    print('Добро пожаловать на ферму!')
+    print()
+    print('s - проверить животных')
+    print('f - покормить животных')
+    print('c - собрать яйца / шерсть / подоить')
+    print('tw - узнать вес всех животных')
+    print('mw - узнать кто больше всех весит')
+    print('q - уйти с фермы')
+    while True:
+        print()
+        user_input = input('Что делаем? ')
+        print()
+        if user_input == 's':
+            animal_status()
+        elif user_input == 'f':
+            for animal in animals_list:
+                animal.feed()
+            print('Животные покормлены!')
+        elif user_input == 'c':
+            for animal in animals_list:
+                animal.collect()
+            print('Всё собрали!')
+        elif user_input == 'tw':
+            total_weight()
+        elif user_input == 'mw':
+            max_weight()
+        elif user_input == 'q':
+            print('До встречи!')
+            break
+        else:
+            print('Некорректная команда :(')
 
 
 goose_1 = Goose('Серый', 9.2)
@@ -74,6 +153,13 @@ goat_1 = Goat('Рога', 42)
 goat_2 = Goat('Копыта', 37.5)
 duck = Duck('Кряква', 4.8)
 
+animals_list = [goose_1, goose_2,
+                cow,
+                sheep_1, sheep_2,
+                chicken_1, chicken_2,
+                goat_1, goat_2,
+                duck]
+
 name_plus_weight = {goose_1.name: goose_1.weight,
                     goose_2.name: goose_2.weight,
                     cow.name: cow.weight,
@@ -83,14 +169,7 @@ name_plus_weight = {goose_1.name: goose_1.weight,
                     chicken_2.name: chicken_2.weight,
                     goat_1.name: goat_1.weight,
                     goat_2.name: goat_2.weight,
-                    duck.name: duck.weight
-                    }
+                    duck.name: duck.weight}
 
-total_weight = sum(name_plus_weight.values())
-print(f'Общий вес всех животных: {total_weight}')
-
-max_value = max(name_plus_weight.values())
-for heaviest_animal, heaviest_weight in name_plus_weight.items():
-    if heaviest_weight == max_value:
-        print(f'Самое тяжелое животное на ферме - '
-              f'это {heaviest_animal} весом {heaviest_weight} кг!')
+if __name__ == "__main__":
+    main()
